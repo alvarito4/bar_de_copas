@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Panel Profesional del Bar</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        background: #0d0d0d;
+        color: #e6e6e6;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    h1 {
+        text-align: center;
+        padding: 20px;
+        color: #f2f2f2;
+    }
+    .container {
+        width: 90%;
+        margin: auto;
+        padding: 20px;
+        background: #1a1a1a;
+        border-radius: 10px;
+    }
+    label {
+        display: block;
+        margin-top: 10px;
+        font-size: 18px;
+    }
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        background: #333;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+    button {
+        width: 100%;
+        padding: 15px;
+        margin-top: 20px;
+        background: #0099ff;
+        border: none;
+        border-radius: 5px;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+    }
+    .result {
+        margin-top: 20px;
+        padding: 20px;
+        background: #262626;
+        border-radius: 10px;
+        font-size: 18px;
+    }
+    canvas {
+        margin-top: 40px;
+    }
+</style>
+</head>
+<body>
+
+<h1>Panel Profesional del Bar</h1>
+
+<div class="container">
+
+    <label>Tipo de día:</label>
+    <select id="tipoDia">
+        <option value="normal">Día Normal</option>
+        <option value="evento">Día de Evento</option>
+    </select>
+
+    <label>Número de clientes:</label>
+    <input type="number" id="clientes" value="0">
+
+    <label>Copas vendidas:</label>
+    <input type="number" id="copas" value="0">
+
+    <label>Cervezas vendidas:</label>
+    <input type="number" id="cervezas" value="0">
+
+    <label>Refrescos vendidos:</label>
+    <input type="number" id="refrescos" value="0">
+
+    <label>Aguas vendidas:</label>
+    <input type="number" id="aguas" value="0">
+
+    <button onclick="calcular()">CALCULAR</button>
+
+    <div class="result" id="resultado"></div>
+
+    <canvas id="grafica"></canvas>
+
+</div>
+
+<script>
+function calcular() {
+
+    // Datos base reales
+    const costeCopa = 0.62;
+    const costeCerveza = 0.50;
+    const costeRefresco = 0.50;
+    const costeAgua = 0.30;
+
+    const gastosDiarios = 106.5;
+
+    const tipoDia = document.getElementById("tipoDia").value;
+    const clientes = parseInt(document.getElementById("clientes").value);
+    const copas = parseInt(document.getElementById("copas").value);
+    const cervezas = parseInt(document.getElementById("cervezas").value);
+    const refrescos = parseInt(document.getElementById("refrescos").value);
+    const aguas = parseInt(document.getElementById("aguas").value);
+
+    let precioCopa, precioCerveza, precioRefresco, precioAgua, ingresosEntrada;
+
+    if (tipoDia === "normal") {
+        precioCopa = 5;
+        precioCerveza = 2.0;
+        precioRefresco = 2.0;
+        precioAgua = 1;
+        ingresosEntrada = 0;
+    } else {
+        precioCopa = 5.0;
+        precioCerveza = 2.5;
+        precioRefresco = 2.5;
+        precioAgua = 1;
+        ingresosEntrada = clientes * 5;
+    }
+
+    const ingresos =
+        (copas * precioCopa) +
+        (cervezas * precioCerveza) +
+        (refrescos * precioRefresco) +
+        (aguas * precioAgua) +
+        ingresosEntrada;
+
+    const pagos =
+        gastosDiarios +
+        (copas * costeCopa) +
+        (cervezas * costeCerveza) +
+        (refrescos * costeRefresco) +
+        (aguas * costeAgua);
+
+    const beneficio = ingresos - pagos;
+    const beneficioNeto = beneficio * 0.64;
+
+    const situacionMala = beneficio * 0.6;
+    const situacionBuena = beneficio * 1.3;
+
+    document.getElementById("resultado").innerHTML = `
+        <b>Ingresos totales:</b> ${ingresos.toFixed(2)} €<br>
+        <b>Pagos totales:</b> ${pagos.toFixed(2)} €<br>
+        <b>Beneficio:</b> ${beneficio.toFixed(2)} €<br>
+        <b>Beneficio después de impuestos:</b> ${beneficioNeto.toFixed(2)} €<br><br>
+        <b>Situación mala:</b> ${situacionMala.toFixed(2)} €<br>
+        <b>Situación buena:</b> ${situacionBuena.toFixed(2)} €
+    `;
+
+    // Gráfica
+    const ctx = document.getElementById("grafica").getContext("2d");
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Ingresos", "Pagos", "Beneficio"],
+            datasets: [{
+                label: "€",
+                data: [ingresos, pagos, beneficio],
+                backgroundColor: ["#0099ff", "#ff3333", "#33cc33"]
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>
